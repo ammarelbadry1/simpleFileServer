@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title> Simple File Server </title>
+</head>
+
+<style>
+  body {
+    color: #ffffff;
+    background-image: linear-gradient(
+      to top right,
+      hsl(208.04, 100%, 20.98%) 0%,
+      hsl(208.09, 100%, 21.29%) 8.1%,
+      hsl(208.23, 100%, 22.15%) 15.5%,
+      hsl(208.43, 100%, 23.49%) 22.5%,
+      hsl(208.65, 100%, 25.21%) 29%,
+      hsl(208.88, 100%, 27.23%) 35.3%,
+      hsl(209.09, 100%, 29.47%) 41.2%,
+      hsl(209.29, 100%, 31.84%) 47.1%,
+      hsl(209.46, 100%, 34.24%) 52.9%,
+      hsl(209.6, 100%, 36.61%) 58.8%,
+      hsl(209.73, 100%, 38.85%) 64.7%,
+      hsl(209.82, 100%, 40.87%) 71%,
+      hsl(209.9, 100%, 42.59%) 77.5%,
+      hsl(209.95, 100%, 43.93%) 84.5%,
+      hsl(209.99, 100%, 44.79%) 91.9%,
+      hsl(210, 100%, 45.1%) 100%
+    );
+    font-family: 'Segoe UI';
+    height: 100vh;
+    margin: 0;
+  }
+
+
+  ul {
+    margin: 0;
+    font-size: 2em;
+    padding: 1em 40px;
+  }
+
+  ol {
+    font-size: 1.3rem;
+    z-index: 1;
+  }
+
+  li {
+    cursor: pointer;
+  }
+
+  a {
+    color: #d9d9d9;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+  }
+</style>
+
+<body>
+  <ul id='list'>
+  </ul>
+  <script>
+    async function callFiles(e) {
+      if (e.target.matches('.active')) {
+
+        e.target.classList.remove('active');
+        e.target.removeChild(e.target.childNodes[1]);
+
+      } else {
+        e.target.classList.add('active');
+        const dir = e.target.innerText;
+
+        const res = await fetch(`http://localhost:3000/${dir}`);
+        const filesList = await res.json();
+
+        const htmlFilesList = document.createElement('ol');
+        e.target.appendChild(htmlFilesList);
+
+        filesList.map((listItem) => {
+          const htmlListItem = document.createElement('li');
+          const link = document.createElement('a');
+          const linkText = document.createTextNode(listItem);
+
+          link.href = `http://localhost:3000/${dir}/${listItem}`;
+
+          htmlFilesList.appendChild(htmlListItem);
+          htmlListItem.appendChild(link);
+          link.appendChild(linkText);
+        });
+      }
+    }
+
+    async function callDirs() {
+      const htmlList = document.getElementById('list');
+      const res = await fetch('http://localhost:3000/ls');
+      const listItems = await res.json();
+
+      listItems.map((listItem) => {
+        const htmlListItem = document.createElement('li');
+        const h2 = document.createElement('h2');
+        const textNode = document.createTextNode(listItem);
+        
+        htmlList.appendChild(htmlListItem);
+        htmlListItem.addEventListener('click', callFiles);
+        htmlListItem.appendChild(textNode);
+      });
+    }
+
+    callDirs();
+  </script>
+</body>
+
+</html>
